@@ -24,9 +24,9 @@ class BlinkCore : public QObject
 
     QString m_username;
     QMap<QString, QString> m_formats;
-    BlinkWriter m_animelistWriter;
+    BlinkWriter *m_animelistWriter;
     BlinkParser *m_animelistParser;
-    BlinkWriter m_mangalistWriter;
+    BlinkWriter *m_mangalistWriter;
     BlinkParser *m_mangalistParser;
     QNetworkAccessManager *m_manager;
     QThread *m_parsingThread;
@@ -42,8 +42,8 @@ public:
     explicit BlinkCore(QObject *parent = 0);
     ~BlinkCore();
     QStringList availableSelectorTypes() { return m_formats.keys(); }
-    QString getAnimeOutPath() const { return m_animelistWriter.getOutputPath(); }
-    QString getMangaOutPath() const { return m_mangalistWriter.getOutputPath(); }
+    QString getAnimeOutPath() const { return m_animelistWriter->getOutputPath(); }
+    QString getMangaOutPath() const { return m_mangalistWriter->getOutputPath(); }
     bool animelist() const { return m_processAnimelist; }
     bool mangalist() const { return m_processMangalist; }
     QString username() const { return m_username; }
@@ -60,10 +60,10 @@ signals:
 
 public slots:
     void startProcessing();
-    void setAnimeOutPath(QString arg) { m_animelistWriter.setOutputPath(arg); }
-    void setMangaOutPath(QString arg) { m_mangalistWriter.setOutputPath(arg); }
-    void setAnimeOutFormat(QString arg) { m_animelistWriter.setOutputFormat(m_formats[arg]); }
-    void setMangaOutFormat(QString arg) { m_mangalistWriter.setOutputFormat(m_formats[arg]); }
+    void setAnimeOutPath(QString arg) { m_animelistWriter->setOutputPath(arg); }
+    void setMangaOutPath(QString arg) { m_mangalistWriter->setOutputPath(arg); }
+    void setAnimeOutFormat(QString arg) { m_animelistWriter->setOutputFormat(m_formats[arg]); }
+    void setMangaOutFormat(QString arg) { m_mangalistWriter->setOutputFormat(m_formats[arg]); }
     void processAnimelist(bool arg) { m_processAnimelist = arg; }
     void processMangalist(bool arg) { m_processMangalist = arg; }
     void setUsername(QString arg) { m_username = arg; }
