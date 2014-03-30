@@ -26,8 +26,8 @@ BlinkCore::BlinkCore(QObject *parent) :
     connect(m_animelistParser, SIGNAL(write(QString,QString)), m_animelistWriter, SLOT(write(QString,QString)));
     connect(m_mangalistParser, SIGNAL(write(QString,QString)), m_mangalistWriter, SLOT(write(QString,QString)));
 
-    connect(this, SIGNAL(parseAnimelist(QNetworkReply*)), m_animelistParser, SLOT(fire(QNetworkReply*)));
-    connect(this, SIGNAL(parseMangalist(QNetworkReply*)), m_mangalistParser, SLOT(fire(QNetworkReply*)));
+//    connect(this, SIGNAL(parseAnimelist(QNetworkReply*)), m_animelistParser, SLOT(fire(QNetworkReply*)));
+//    connect(this, SIGNAL(parseMangalist(QNetworkReply*)), m_mangalistParser, SLOT(fire(QNetworkReply*)));
 
     connect(m_animelistParser, SIGNAL(totalCount(int)),this, SIGNAL(animelistTotal(int)));
     connect(m_animelistParser, SIGNAL(currentProgress(int)), this, SIGNAL(animelistProcessed(int)));
@@ -57,17 +57,17 @@ void BlinkCore::startProcessing()
     m_finishesNeeded = 0;
     if (m_processAnimelist) {
         m_finishesNeeded++;
-        if (!m_animelistWriter.open()) {
+        if (!m_animelistWriter->open()) {
             emit error("Failed to launch the animelist writer");
         }
-        emit parseAnimelist(m_manager->get(wrap(UrlTemplate.arg(m_username, UrlAnimePart))));
+        m_animelistParser->fire(m_manager->get(wrap(UrlTemplate.arg(m_username, UrlAnimePart))));
     }
     if (m_processMangalist) {
         m_finishesNeeded++;
-        if (!m_mangalistWriter.open()) {
+        if (!m_mangalistWriter->open()) {
             emit error("Failed to launch the mangalist writer");
         }
-        emit parseMangalist(m_manager->get(wrap(UrlTemplate.arg(m_username, UrlMangaPart))));
+        m_mangalistParser->fire(m_manager->get(wrap(UrlTemplate.arg(m_username, UrlMangaPart))));
     }
 }
 
@@ -75,8 +75,8 @@ void BlinkCore::onConverterFinished()
 {
     m_finishesNeeded--;
     if (m_finishesNeeded == 0) {
-        if (m_processAnimelist) m_animelistWriter.close();
-        if (m_processMangalist) m_mangalistWriter.close();
+        if (m_processAnimelist) m_animelistWriter->close();
+        if (m_processMangalist) m_mangalistWriter->close();
         emit finished();
     }
 }
