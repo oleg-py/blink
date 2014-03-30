@@ -1,4 +1,4 @@
 blink
 =====
 
-Fast covers import generator
+Fast covers import generator for MAL
