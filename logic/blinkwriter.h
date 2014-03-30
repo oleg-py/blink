@@ -6,10 +6,8 @@
 
 class QFile;
 class QTextStream;
-class QNetworkReply;
-class QXmlStreamReader;
 
-class BlinkConverter : public QObject
+class BlinkWriter : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString outputPath READ getOutputPath WRITE setOutputPath)
@@ -24,23 +22,11 @@ class BlinkConverter : public QObject
     QFile *m_outputFile;
     QTextStream *m_outputStream;
 
-    QNetworkReply *m_reply;
-    QXmlStreamReader *m_reader;
-
-    bool m_atUserInfo;
-    int m_total;
-    int m_current;
-    QString m_currentId;
-    QString m_currentImgLink;
-
-    void write();
-    void parseXml();
-
 public:
-    explicit BlinkConverter(QObject *parent = 0);
+    explicit BlinkWriter(QObject *parent = 0);
+    ~BlinkWriter();
     bool open();
     void close();
-    void fire(QNetworkReply *reply);
 
     QString getOutputPath() const { return m_outputPath; }
     QString getOutputFormat() const { return m_outputFormat; }
@@ -48,15 +34,7 @@ public:
 public slots:
     void setOutputPath(QString arg) { m_outputPath = arg; }
     void setOutputFormat(QString arg) { m_outputFormat = arg; }
-
-private slots:
-    void onReplyReadyRead();
-
-signals:
-    void writingFinished();
-    void writingAborted(QString err);
-    void totalCount(int);
-    void currentProgress(int);
+    void write(const QString& id, const QString& link);
 };
 
 #endif // BLINKWRITER_H

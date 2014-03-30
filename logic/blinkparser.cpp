@@ -1,46 +1,25 @@
-#include "blinkconverter.h"
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
-#include <QtCore/QDebug>
+#include "blinkparser.h"
 #include <QtCore/QXmlStreamReader>
 #include <QtNetwork/QNetworkReply>
 
-BlinkConverter::BlinkConverter(QObject *parent) :
+BlinkParser::BlinkParser(QObject *parent) :
     QObject(parent)
 {
     m_reader = new QXmlStreamReader();
-    m_outputFile = m_outputStream = m_reply = nullptr;
+    m_reply = nullptr;
 }
 
-bool BlinkConverter::open()
+BlinkParser::~BlinkParser()
 {
-    m_outputFile = new QFile(m_outputPath);
-    if (!m_outputFile->open(QIODevice::WriteOnly
-                            | QIODevice::Text | QIODevice::Truncate)) {
-        qWarning() << "BlinkConverter: Couldn't open file at" << m_outputPath;
-        delete m_outputFile;
-        return false;
+    delete m_reader;
+    if (m_reply) {
+        m_reply->abort();
+        m_reply->deleteLater();
     }
-    m_outputStream = new QTextStream(m_outputFile);
-
-    m_format_beforeID = m_outputFormat.section('%', 0, 0);
-    m_format_beforeLink = m_outputFormat.section('%', 1, 1);
-    m_format_rest = m_outputFormat.section('%', 2);
-    qDebug() << "BlinkConverter: opening complete";
-    qDebug() << "BlinkConverter: result example: "
-             << m_format_beforeID << "XXXXX" << m_format_beforeLink
-             << "/000/000/000.jpg" << m_format_rest;
 }
 
-void BlinkConverter::close()
-{
-    delete m_outputStream;
-    delete m_outputFile;
-    m_outputStream = m_outputFile = nullptr;
-    qDebug() << "BlinkWriter: closed";
-}
 
-void BlinkConverter::fire(QNetworkReply *reply)
+void BlinkParser::fire(QNetworkReply *reply)
 {
     // reset the state
     m_total = m_current = 0;
@@ -49,25 +28,17 @@ void BlinkConverter::fire(QNetworkReply *reply)
     m_reader->clear();
     m_reader->addData(reply->readAll());
     connect(m_reply, &QNetworkReply::readyRead,
-            this, &BlinkConverter::onReplyReadyRead);
+            this, &BlinkParser::onReplyReadyRead);
+    parseXml();
 }
 
-void BlinkConverter::onReplyReadyRead()
+void BlinkParser::onReplyReadyRead()
 {
     m_reader->addData(m_reply->readAll());
+    parseXml();
 }
 
-void BlinkConverter::write()
-{
-    *m_outputStream << m_format_beforeID
-                    << m_currentId
-                    << m_format_beforeLink
-                    << m_currentImgLink
-                    << m_format_rest
-                    << '\n';
-}
-
-void BlinkConverter::parseXml()
+void BlinkParser::parseXml()
 {
     while (!m_reader->atEnd()) {
         switch(m_reader->readNext()) {
@@ -77,7 +48,7 @@ void BlinkConverter::parseXml()
                 m_currentId = m_reader->readElementText();
             } else if (m_reader->name() == "series_image") {
                 m_currentImgLink = m_reader->readElementText();
-                write();
+                emit write(m_currentId, m_currentImgLink);
                 emit currentProgress(++m_current);
             } else if (m_reader->name() == "myinfo") {
                 m_atUserInfo = true;
@@ -100,6 +71,7 @@ void BlinkConverter::parseXml()
             break;
         case QXmlStreamReader::EndDocument:
             m_reply->deleteLater();
+            m_reply = nullptr;
             emit writingFinished();
         default:
             break;
