@@ -1,7 +1,5 @@
 HEADERS += \
-    logic/blinkwriter.h \
-    logic/blinkdatabase.h
+    logic/blinkconverter.h
 
 SOURCES += \
-    logic/blinkwriter.cpp \
-    logic/blinkdatabase.cpp
+    logic/blinkconverter.cpp
