@@ -52,7 +52,6 @@ BlinkCore::~BlinkCore()
 
 void BlinkCore::startProcessing()
 {
-    // FIXME add error handling
     m_finishesNeeded = 0;
     if (m_processAnimelist) {
         m_finishesNeeded++;
