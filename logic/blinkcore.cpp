@@ -8,8 +8,8 @@ const QString BlinkCore::UrlMangaPart { QStringLiteral("manga") };
 
 BlinkCore::BlinkCore(QObject *parent) :
     QObject(parent),
-    m_animelistWriter(this), m_animelistParser(new BlinkParser),
-    m_mangalistWriter(this), m_mangalistParser(new BlinkParser),
+    m_animelistWriter(new BlinkWriter), m_animelistParser(new BlinkParser),
+    m_mangalistWriter(new BlinkWriter), m_mangalistParser(new BlinkParser),
     m_manager(new QNetworkAccessManager(this)), m_parsingThread(new QThread(this)),
     m_processAnimelist(false), m_processMangalist(false), m_finishesNeeded(0)
 {
@@ -20,11 +20,11 @@ BlinkCore::BlinkCore(QObject *parent) :
     m_formats["animetitle:before"] = ".animetitle[href*=\"/~/\"]:before{background-image: url(\'~\')}";
     m_formats["animetitle:after"] = ".animetitle[href*=\"/~/\"]:after{background-image: url(\'~\')}";
 
-    m_animelistParser->moveToThread(m_parsingThread);
-    m_mangalistParser->moveToThread(m_parsingThread);
+    m_animelistWriter->moveToThread(m_parsingThread);
+    m_mangalistWriter->moveToThread(m_parsingThread);
 
-    connect(m_animelistParser, SIGNAL(write(QString,QString)), &m_animelistWriter, SLOT(write(QString,QString)));
-    connect(m_mangalistParser, SIGNAL(write(QString,QString)), &m_mangalistWriter, SLOT(write(QString,QString)));
+    connect(m_animelistParser, SIGNAL(write(QString,QString)), m_animelistWriter, SLOT(write(QString,QString)));
+    connect(m_mangalistParser, SIGNAL(write(QString,QString)), m_mangalistWriter, SLOT(write(QString,QString)));
 
     connect(this, SIGNAL(parseAnimelist(QNetworkReply*)), m_animelistParser, SLOT(fire(QNetworkReply*)));
     connect(this, SIGNAL(parseMangalist(QNetworkReply*)), m_mangalistParser, SLOT(fire(QNetworkReply*)));
@@ -48,6 +48,8 @@ BlinkCore::~BlinkCore()
     delete m_parsingThread;
     delete m_animelistParser;
     delete m_mangalistParser;
+    delete m_animelistWriter;
+    delete m_mangalistWriter;
 }
 
 void BlinkCore::startProcessing()
