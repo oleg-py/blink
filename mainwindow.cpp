@@ -74,7 +74,8 @@ void MainWindow::writePath(QLineEdit *le)
 
 void MainWindow::onBlinkButtonPressed()
 {
-    if (ui->anime_path->text() == ui->manga_path->text()) {
+    if (ui->anime_group->isChecked() && ui->manga_group->isChecked()
+            && ui->anime_path->text() == ui->manga_path->text()) {
         QMessageBox::warning(this, tr("Warning"),
                              tr("You cannot save both cover files into one"));
         return;
