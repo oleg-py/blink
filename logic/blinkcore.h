@@ -29,7 +29,7 @@ class BlinkCore : public QObject
     BlinkWriter *m_mangalistWriter;
     BlinkParser *m_mangalistParser;
     QNetworkAccessManager *m_manager;
-    QThread *m_parsingThread;
+    QThread *m_backgroundThread;
     bool m_processAnimelist;
     bool m_processMangalist;
     int m_finishesNeeded;

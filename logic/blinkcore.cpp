@@ -10,7 +10,7 @@ BlinkCore::BlinkCore(QObject *parent) :
     QObject(parent),
     m_animelistWriter(new BlinkWriter), m_animelistParser(new BlinkParser),
     m_mangalistWriter(new BlinkWriter), m_mangalistParser(new BlinkParser),
-    m_manager(new QNetworkAccessManager(this)), m_parsingThread(new QThread(this)),
+    m_manager(new QNetworkAccessManager(this)), m_backgroundThread(new QThread(this)),
     m_processAnimelist(false), m_processMangalist(false), m_finishesNeeded(0)
 {
     m_formats["more"] = "#more~{background-image:url(\'~\')}";
@@ -20,8 +20,8 @@ BlinkCore::BlinkCore(QObject *parent) :
     m_formats["animetitle:before"] = ".animetitle[href*=\"/~/\"]:before{background-image: url(\'~\')}";
     m_formats["animetitle:after"] = ".animetitle[href*=\"/~/\"]:after{background-image: url(\'~\')}";
 
-    m_animelistWriter->moveToThread(m_parsingThread);
-    m_mangalistWriter->moveToThread(m_parsingThread);
+    m_animelistWriter->moveToThread(m_backgroundThread);
+    m_mangalistWriter->moveToThread(m_backgroundThread);
 
     connect(m_animelistParser, SIGNAL(write(QString,QString)), m_animelistWriter, SLOT(write(QString,QString)));
     connect(m_mangalistParser, SIGNAL(write(QString,QString)), m_mangalistWriter, SLOT(write(QString,QString)));
@@ -38,14 +38,14 @@ BlinkCore::BlinkCore(QObject *parent) :
     connect(m_mangalistParser, SIGNAL(currentProgress(int)), this, SIGNAL(mangalistProcessed(int)));
     connect(m_mangalistParser, SIGNAL(writingAborted(QString)), this, SIGNAL(error(QString)));
     connect(m_mangalistParser, SIGNAL(writingFinished()), this, SLOT(onConverterFinished()));
-    m_parsingThread->start();
+    m_backgroundThread->start();
 }
 
 BlinkCore::~BlinkCore()
 {
-    m_parsingThread->exit();
+    m_backgroundThread->exit();
     delete m_manager;
-    delete m_parsingThread;
+    delete m_backgroundThread;
     delete m_animelistParser;
     delete m_mangalistParser;
     delete m_animelistWriter;
