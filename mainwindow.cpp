@@ -11,8 +11,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->anime_selectorFormat->addItems(core->availableSelectorTypes());
-    ui->manga_selectorFormat->addItems(core->availableSelectorTypes());
+    auto availableTypes = core->availableSelectorTypes();
+    ui->anime_selectorFormat->addItems(availableTypes);
+    ui->manga_selectorFormat->addItems(availableTypes);
+    core->setAnimeOutFormat(availableTypes.at(0));
+    core->setMangaOutFormat(availableTypes.at(0));
     connect(core, &BlinkCore::animelistTotal,
             [this](int i) { ui->anime_progress->setMaximum(qMax(i, 1)); });
     connect(core, &BlinkCore::animelistProcessed,
@@ -23,13 +26,13 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->manga_progress, &QProgressBar::setValue);
 
     connect(core, &BlinkCore::finished,
-            [this] {setEnabled(true); QMessageBox::information(
-                    this, tr("Finished!"), tr("Everything is done"));});
+            this, &MainWindow::onBlinkFinished);
     connect(core, &BlinkCore::error,
-            [this] (QString s) {setEnabled(true); QMessageBox::critical(this, tr("Error!"), s);});
+            this, &MainWindow::onBlinkError);
 
     connect(ui->usernameEdit, &QLineEdit::textChanged,
             core, &BlinkCore::setUsername);
+    connect(ui->usernameEdit, &QLineEdit::textChanged, this, &MainWindow::purgeProgress);
     connect(ui->anime_group, &QGroupBox::toggled, core, &BlinkCore::processAnimelist);
     connect(ui->manga_group, &QGroupBox::toggled, core, &BlinkCore::processMangalist);
     connect(ui->anime_path, &QLineEdit::textChanged, core, &BlinkCore::setAnimeOutPath);
@@ -71,7 +74,55 @@ void MainWindow::writePath(QLineEdit *le)
 
 void MainWindow::onBlinkButtonPressed()
 {
-    setDisabled(true);
-    // TODO better checking here
+    if (ui->anime_path->text() == ui->manga_path->text()) {
+        QMessageBox::warning(this, tr("Warning"),
+                             tr("You cannot save both cover files into one"));
+        return;
+    }
+    if (ui->anime_group->isChecked() && ui->anime_path->text().isEmpty()) {
+        QMessageBox::warning(this, tr("Warning"),
+                             tr("You must specify a path to save anime list covers"));
+        return;
+    }
+    if (ui->manga_group->isChecked() && ui->manga_path->text().isEmpty()) {
+        QMessageBox::warning(this, tr("Warning"),
+                             tr("You must specify a path to save manga list covers"));
+        return;
+    }
+    enableControls(false);
     core->startProcessing();
+}
+
+void MainWindow::enableControls(bool enable)
+{
+    ui->anime_group->setEnabled(enable);
+    ui->manga_group->setEnabled(enable);
+    ui->usernameEdit->setEnabled(enable);
+    ui->blinkButton->setEnabled(enable);
+}
+
+void MainWindow::purgeProgress()
+{
+    ui->anime_progress->setValue(0);
+    ui->anime_progress->setMaximum(1);
+    ui->manga_progress->setValue(0);
+    ui->manga_progress->setMaximum(1);
+}
+
+void MainWindow::onBlinkFinished()
+{
+    // this is a workaround because MAL can report incorrect quantities
+    // so I just quickly change the values to indicate correct ones
+    ui->anime_progress->setMaximum(qMax(1,ui->anime_progress->value()));
+    ui->manga_progress->setMaximum(qMax(1,ui->manga_progress->value()));
+    QMessageBox::information(this, tr("Info"),
+                             tr("Saving completed"));
+    enableControls(true);
+}
+
+void MainWindow::onBlinkError(QString msg)
+{
+    enableControls(true);
+    QMessageBox::critical(this, tr("Error"),
+                          tr("An error occured during operation:/n%1").arg(msg));
 }

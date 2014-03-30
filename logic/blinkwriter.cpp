@@ -23,13 +23,14 @@ bool BlinkWriter::open()
                             | QIODevice::Text | QIODevice::Truncate)) {
         qWarning() << "BlinkWriter: Couldn't open file at" << m_outputPath;
         delete m_outputFile;
+        m_outputFile = nullptr;
         return false;
     }
     m_outputStream = new QTextStream(m_outputFile);
 
-    m_format_beforeID = m_outputFormat.section('*', 0, 0);
-    m_format_beforeLink = m_outputFormat.section('*', 1, 1);
-    m_format_rest = m_outputFormat.section('*', 2);
+    m_format_beforeID = m_outputFormat.section('~', 0, 0);
+    m_format_beforeLink = m_outputFormat.section('~', 1, 1);
+    m_format_rest = m_outputFormat.section('~', 2);
     qDebug() << "BlinkWriter: opening complete";
     return true;
 }

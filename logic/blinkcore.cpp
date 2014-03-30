@@ -13,12 +13,12 @@ BlinkCore::BlinkCore(QObject *parent) :
     m_manager(new QNetworkAccessManager(this)), m_parsingThread(new QThread(this)),
     m_processAnimelist(false), m_processMangalist(false), m_finishesNeeded(0)
 {
-    m_formats["more"] = "#more*{background-image:url(\'*\')}";
-    m_formats["more:before"] = "#more*{background-image:url(\'*\')}";
-    m_formats["more:after"] = "#more*:after{background-image:url(\'*\')}";
-    m_formats["animetitle"] = ".animetitle[href*=\"/*/\"]{background-image: url(\'*\');}";
-    m_formats["animetitle:before"] = ".animetitle[href*=\"/*/\"]:before{background-image: url(\'*\');}";
-    m_formats["animetitle:after"] = ".animetitle[href*=\"/*/\"]:after{background-image: url(\'*\');}";
+    m_formats["more"] = "#more~{background-image:url(\'~\')}";
+    m_formats["more:before"] = "#more~{background-image:url(\'*\')}";
+    m_formats["more:after"] = "#more~:after{background-image:url(\'~\')}";
+    m_formats["animetitle"] = ".animetitle[href*=\"/~/\"]{background-image: url(\'~\');}";
+    m_formats["animetitle:before"] = ".animetitle[href*=\"/~/\"]:before{background-image: url(\'~\');}";
+    m_formats["animetitle:after"] = ".animetitle[href*=\"/~/\"]:after{background-image: url(\'~\');}";
 
     m_animelistParser->moveToThread(m_parsingThread);
     m_mangalistParser->moveToThread(m_parsingThread);
@@ -33,6 +33,7 @@ BlinkCore::BlinkCore(QObject *parent) :
     connect(m_animelistParser, SIGNAL(currentProgress(int)), this, SIGNAL(animelistProcessed(int)));
     connect(m_animelistParser, SIGNAL(writingAborted(QString)), this, SIGNAL(error(QString)));
     connect(m_animelistParser, SIGNAL(writingFinished()), this, SLOT(onConverterFinished()));
+
     connect(m_mangalistParser, SIGNAL(totalCount(int)), this, SIGNAL(mangalistTotal(int)));
     connect(m_mangalistParser, SIGNAL(currentProgress(int)), this, SIGNAL(mangalistProcessed(int)));
     connect(m_mangalistParser, SIGNAL(writingAborted(QString)), this, SIGNAL(error(QString)));
@@ -42,8 +43,8 @@ BlinkCore::BlinkCore(QObject *parent) :
 
 BlinkCore::~BlinkCore()
 {
-    delete m_manager;
     m_parsingThread->exit();
+    delete m_manager;
     delete m_parsingThread;
     delete m_animelistParser;
     delete m_mangalistParser;
@@ -73,8 +74,8 @@ void BlinkCore::onConverterFinished()
 {
     m_finishesNeeded--;
     if (m_finishesNeeded == 0) {
-        emit finished();
         if (m_processAnimelist) m_animelistWriter.close();
         if (m_processMangalist) m_mangalistWriter.close();
+        emit finished();
     }
 }

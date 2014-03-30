@@ -1,6 +1,7 @@
 #include "blinkparser.h"
 #include <QtCore/QXmlStreamReader>
 #include <QtNetwork/QNetworkReply>
+#include <QThread>
 
 BlinkParser::BlinkParser(QObject *parent) :
     QObject(parent)
@@ -55,10 +56,12 @@ void BlinkParser::parseXml()
             } else if (m_atUserInfo) {
                 // here we rip off the total progress that we need
                 if (m_reader->name() == "user_watching"
+                        || m_reader->name() == "user_reading"
                         || m_reader->name() == "user_completed"
                         || m_reader->name() == "user_onhold"
                         || m_reader->name() == "user_dropped"
-                        || m_reader->name() == "user_plantowatch") {
+                        || m_reader->name() == "user_plantowatch"
+                        || m_reader->name() == "user_plantoread") {
                     m_total += m_reader->readElementText().toInt();
                 }
             }
@@ -82,5 +85,6 @@ void BlinkParser::parseXml()
         emit writingAborted(m_reader->errorString());
         m_reply->abort();
         m_reply->deleteLater();
+        m_reply = nullptr;
     }
 }

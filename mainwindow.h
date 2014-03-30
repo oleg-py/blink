@@ -24,8 +24,13 @@ protected:
 private:
     Ui::MainWindow *ui;
     void writePath(QLineEdit *le);
+
 private slots:
     void onBlinkButtonPressed();
+    void enableControls(bool enable);
+    void purgeProgress();
+    void onBlinkFinished();
+    void onBlinkError(QString msg);
 };
 
 #endif // MAINWINDOW_H

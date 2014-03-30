@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>465</width>
-    <height>263</height>
+    <width>425</width>
+    <height>416</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -93,22 +93,22 @@
            </property>
           </spacer>
          </item>
-         <item>
-          <widget class="QProgressBar" name="anime_progress">
-           <property name="maximum">
-            <number>1</number>
-           </property>
-           <property name="value">
-            <number>0</number>
-           </property>
-           <property name="format">
-            <string>%v/%m (%p%)</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QProgressBar" name="anime_progress">
+      <property name="maximum">
+       <number>1</number>
+      </property>
+      <property name="value">
+       <number>0</number>
+      </property>
+      <property name="format">
+       <string>%v/%m (%p%)</string>
+      </property>
      </widget>
     </item>
     <item>
@@ -172,22 +172,22 @@
            </property>
           </spacer>
          </item>
-         <item>
-          <widget class="QProgressBar" name="manga_progress">
-           <property name="maximum">
-            <number>1</number>
-           </property>
-           <property name="value">
-            <number>0</number>
-           </property>
-           <property name="format">
-            <string>%v/%m (%p%)</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QProgressBar" name="manga_progress">
+      <property name="maximum">
+       <number>1</number>
+      </property>
+      <property name="value">
+       <number>0</number>
+      </property>
+      <property name="format">
+       <string>%v/%m (%p%)</string>
+      </property>
      </widget>
     </item>
     <item>
