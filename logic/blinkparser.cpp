@@ -44,10 +44,10 @@ void BlinkParser::parseXml()
     while (!m_reader->atEnd()) {
         switch(m_reader->readNext()) {
         case QXmlStreamReader::StartElement:
-            if (m_reader->name() == "series_animedb_id"
-                    || m_reader->name() == "series_mangadb_id") {
+            if (m_reader->name() == QStringLiteral("series_animedb_id")
+                    || m_reader->name() == QStringLiteral("series_mangadb_id")) {
                 m_currentId = m_reader->readElementText();
-            } else if (m_reader->name() == "series_image") {
+            } else if (m_reader->name() == QStringLiteral("series_image")) {
                 m_currentImgLink = m_reader->readElementText();
                 emit write(m_currentId, m_currentImgLink);
                 emit currentProgress(++m_current);
@@ -55,19 +55,19 @@ void BlinkParser::parseXml()
                 m_atUserInfo = true;
             } else if (m_atUserInfo) {
                 // here we rip off the total progress that we need
-                if (m_reader->name() == "user_watching"
-                        || m_reader->name() == "user_reading"
-                        || m_reader->name() == "user_completed"
-                        || m_reader->name() == "user_onhold"
-                        || m_reader->name() == "user_dropped"
-                        || m_reader->name() == "user_plantowatch"
-                        || m_reader->name() == "user_plantoread") {
+                if (m_reader->name() == QStringLiteral("user_watching")
+                        || m_reader->name() == QStringLiteral("user_reading")
+                        || m_reader->name() == QStringLiteral("user_completed")
+                        || m_reader->name() == QStringLiteral("user_onhold")
+                        || m_reader->name() == QStringLiteral("user_dropped")
+                        || m_reader->name() == QStringLiteral("user_plantowatch")
+                        || m_reader->name() == QStringLiteral("user_plantoread")) {
                     m_total += m_reader->readElementText().toInt();
                 }
             }
             break;
         case QXmlStreamReader::EndElement:
-            if (m_reader->name() == "myinfo") {
+            if (m_reader->name() == QStringLiteral("myinfo")) {
                 m_atUserInfo = false;
                 emit totalCount(m_total);
             }
@@ -80,8 +80,9 @@ void BlinkParser::parseXml()
             break;
         }
     }
-    if (m_reader->hasError()
-            && m_reader->error() != QXmlStreamReader::PrematureEndOfDocumentError) {
+    if (Q_UNLIKELY(m_reader->hasError()
+                   && m_reader->error()
+                    != QXmlStreamReader::PrematureEndOfDocumentError)) {
         emit writingAborted(m_reader->errorString());
         m_reply->abort();
         m_reply->deleteLater();
