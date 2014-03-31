@@ -14,7 +14,7 @@ BlinkCore::BlinkCore(QObject *parent) :
     m_processAnimelist(false), m_processMangalist(false), m_finishesNeeded(0)
 {
     m_formats["more"] = "#more~{background-image:url(\'~\')}";
-    m_formats["more:before"] = "#more~{background-image:url(\'*\')}";
+    m_formats["more:before"] = "#more~:before{background-image:url(\'~\')}";
     m_formats["more:after"] = "#more~:after{background-image:url(\'~\')}";
     m_formats["animetitle"] = ".animetitle[href*=\"/~/\"]{background-image: url(\'~\')}";
     m_formats["animetitle:before"] = ".animetitle[href*=\"/~/\"]:before{background-image: url(\'~\')}";
