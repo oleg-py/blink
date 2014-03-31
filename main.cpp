@@ -7,5 +7,6 @@ int main(int argc, char *argv[])
     a.setStyle("fusion");
     MainWindow w;
     w.show();
+    w.setFixedSize(w.size());
     return a.exec();
 }
