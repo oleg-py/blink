@@ -23,3 +23,5 @@ FORMS    += mainwindow.ui
 QMAKE_CXXFLAGS += -std=c++11
 
 include(logic/logic.pri)
+
+RC_FILE = blink.rc
