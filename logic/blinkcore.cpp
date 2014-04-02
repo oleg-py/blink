@@ -69,6 +69,7 @@ void BlinkCore::startProcessing()
         }
         m_mangalistParser->fire(m_manager->get(wrap(UrlTemplate.arg(m_username, UrlMangaPart))));
     }
+    if (m_finishesNeeded == 0) emit error("No target configured");
 }
 
 void BlinkCore::onConverterFinished()
