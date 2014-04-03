@@ -31,12 +31,12 @@ BlinkCore::BlinkCore(QObject *parent) :
 
     connect(m_animelistParser, SIGNAL(totalCount(int)),this, SIGNAL(animelistTotal(int)));
     connect(m_animelistParser, SIGNAL(currentProgress(int)), this, SIGNAL(animelistProcessed(int)));
-    connect(m_animelistParser, SIGNAL(writingAborted(QString)), this, SIGNAL(error(QString)));
+    connect(m_animelistParser, SIGNAL(writingError(QString)), this, SLOT(abortOnError(QString)));
     connect(m_animelistParser, SIGNAL(writingFinished()), this, SLOT(onConverterFinished()));
 
     connect(m_mangalistParser, SIGNAL(totalCount(int)), this, SIGNAL(mangalistTotal(int)));
     connect(m_mangalistParser, SIGNAL(currentProgress(int)), this, SIGNAL(mangalistProcessed(int)));
-    connect(m_mangalistParser, SIGNAL(writingAborted(QString)), this, SIGNAL(error(QString)));
+    connect(m_mangalistParser, SIGNAL(writingError(QString)), this, SLOT(abortOnError(QString)));
     connect(m_mangalistParser, SIGNAL(writingFinished()), this, SLOT(onConverterFinished()));
     m_backgroundThread->start();
 }
@@ -80,4 +80,17 @@ void BlinkCore::onConverterFinished()
         if (m_processMangalist) m_mangalistWriter->close();
         emit finished();
     }
+}
+
+void BlinkCore::abortOnError(QString msg)
+{
+    if (m_processAnimelist) {
+        m_animelistParser->abort();
+        m_animelistWriter->close();
+    }
+    if (m_processMangalist) {
+        m_mangalistParser->abort();
+        m_mangalistWriter->close();
+    }
+    emit error(msg);
 }

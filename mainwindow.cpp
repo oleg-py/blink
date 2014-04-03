@@ -136,5 +136,5 @@ void MainWindow::onBlinkError(QString msg)
 {
     enableControls(true);
     QMessageBox::critical(this, tr("Error"),
-                          tr("An error occured during operation:/n%1").arg(msg));
+                          msg);
 }

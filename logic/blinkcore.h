@@ -81,6 +81,7 @@ private:
 
 private slots:
     void onConverterFinished();
+    void abortOnError(QString msg);
 };
 
 #endif // BLINKCORE_H

@@ -25,6 +25,7 @@ public:
 
 public slots:
     void fire(QNetworkReply *reply);
+    void abort();
 
 private:
     void parseXml();
@@ -35,7 +36,7 @@ private slots:
 signals:
     void writingFinished();
     void write(const QString& id, const QString& link);
-    void writingAborted(QString err);
+    void writingError(QString err);
     void totalCount(int);
     void currentProgress(int);
 };
