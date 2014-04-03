@@ -35,10 +35,12 @@ void BlinkParser::fire(QNetworkReply *reply)
 
 void BlinkParser::abort()
 {
-   disconnect(m_reply);
-   m_reply->abort();
-   m_reply->deleteLater();
-   m_reply = nullptr;
+   if (m_reply) {
+       disconnect(m_reply);
+       m_reply->abort();
+       m_reply->deleteLater();
+       m_reply = nullptr;
+   }
 }
 
 void BlinkParser::onReplyReadyRead()
