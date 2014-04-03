@@ -23,9 +23,11 @@ BlinkParser::~BlinkParser()
 void BlinkParser::fire(QNetworkReply *reply)
 {
     // reset the state
+    m_reply = reply;
+    connect(m_reply, &QNetworkReply::finished,
+            this, &BlinkParser::checkResultCode);
     m_total = m_current = 0;
     m_atUserInfo = false;
-    m_reply = reply;
     m_reader->clear();
     m_reader->addData(reply->readAll());
     connect(m_reply, &QNetworkReply::readyRead,
@@ -35,7 +37,7 @@ void BlinkParser::fire(QNetworkReply *reply)
 
 void BlinkParser::abort()
 {
-   if (m_reply) {
+   if (m_reply != nullptr) {
        disconnect(m_reply);
        m_reply->abort();
        m_reply->deleteLater();
@@ -47,6 +49,17 @@ void BlinkParser::onReplyReadyRead()
 {
     m_reader->addData(m_reply->readAll());
     parseXml();
+}
+
+void BlinkParser::checkResultCode()
+{
+    if (m_reply != nullptr) {
+        int resultCode = m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        if (resultCode != 200) {
+            emit writingError(tr("Network error: reported \'%1\''").arg(
+                                  m_reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString()));
+        }
+    }
 }
 
 void BlinkParser::parseXml()

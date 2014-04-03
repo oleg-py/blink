@@ -32,6 +32,7 @@ private:
 
 private slots:
     void onReplyReadyRead();
+    void checkResultCode();
 
 signals:
     void writingFinished();
