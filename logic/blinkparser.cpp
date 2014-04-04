@@ -56,7 +56,7 @@ void BlinkParser::checkResultCode()
     if (m_reply != nullptr) {
         int resultCode = m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         if (resultCode != 200) {
-            emit writingError(tr("Network error: reported \'%1\''").arg(
+            emit writingError(tr("Network error: reported \'%1\'").arg(
                                   m_reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString()));
         }
     }
