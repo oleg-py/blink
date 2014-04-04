@@ -106,6 +106,9 @@
       <property name="value">
        <number>0</number>
       </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
       <property name="format">
        <string>%v/%m (%p%)</string>
       </property>
@@ -184,6 +187,9 @@
       </property>
       <property name="value">
        <number>0</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
       <property name="format">
        <string>%v/%m (%p%)</string>

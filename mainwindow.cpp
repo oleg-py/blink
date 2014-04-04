@@ -74,6 +74,17 @@ void MainWindow::writePath(QLineEdit *le)
 
 void MainWindow::onBlinkButtonPressed()
 {
+    if (ui->usernameEdit->text().isEmpty()) {
+        QMessageBox::warning(this, tr("Warning"),
+                             tr("You must specify a username"));
+        return;
+    }
+    if (!ui->anime_group->isChecked() && !ui->manga_group->isChecked()) {
+        QMessageBox::warning(this, tr("Warning"),
+                             tr("Nothing to generate covers for.<br />"
+                                "Please at least one list type"));
+        return;
+    }
     if (ui->anime_group->isChecked() && ui->manga_group->isChecked()
             && ui->anime_path->text() == ui->manga_path->text()) {
         QMessageBox::warning(this, tr("Warning"),
@@ -125,5 +136,5 @@ void MainWindow::onBlinkError(QString msg)
 {
     enableControls(true);
     QMessageBox::critical(this, tr("Error"),
-                          tr("An error occured during operation:/n%1").arg(msg));
+                          msg);
 }
