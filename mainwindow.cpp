@@ -59,6 +59,12 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->anime_selectorFormat->setCurrentText(jsonDoc.value("anime_selector").toString("animetitle"));
         ui->manga_selectorFormat->setCurrentText(jsonDoc.value("manga_selector").toString("animetitle"));
     }
+
+    connect(ui->checkBox, &QCheckBox::toggled, [](bool state) {
+        if (!state) {
+            QFile("settings.json").remove();
+        }
+    });
 }
 
 MainWindow::~MainWindow()
