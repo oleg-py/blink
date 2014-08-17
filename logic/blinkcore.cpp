@@ -1,4 +1,4 @@
-#include "blinkcore.h"
+#include "logic/blinkcore.h"
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtCore/QThread>
 
@@ -20,8 +20,8 @@ BlinkCore::BlinkCore(QObject *parent) :
     m_formats["animetitle:before"] = ".animetitle[href*=\"/~/\"]:before{background-image: url(\'~\')}";
     m_formats["animetitle:after"] = ".animetitle[href*=\"/~/\"]:after{background-image: url(\'~\')}";
 
-    m_animelistWriter->moveToThread(m_backgroundThread);
-    m_mangalistWriter->moveToThread(m_backgroundThread);
+    m_animelistParser->moveToThread(m_backgroundThread);
+    m_mangalistParser->moveToThread(m_backgroundThread);
 
     connect(m_animelistParser, SIGNAL(write(QString,QString)), m_animelistWriter, SLOT(write(QString,QString)));
     connect(m_mangalistParser, SIGNAL(write(QString,QString)), m_mangalistWriter, SLOT(write(QString,QString)));

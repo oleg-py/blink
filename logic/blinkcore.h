@@ -7,8 +7,8 @@
 #include <QtCore/QUrl>
 #include <QtCore/QString>
 #include <QtNetwork/QNetworkRequest>
-#include "blinkwriter.h"
-#include "blinkparser.h"
+#include "logic/blinkwriter.h"
+#include "logic/blinkparser.h"
 
 class QNetworkAccessManager;
 class QThread;

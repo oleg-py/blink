@@ -37,6 +37,7 @@ void BlinkParser::fire(QNetworkReply *reply)
 
 void BlinkParser::abort()
 {
+    qDebug("Aborting");
    if (m_reply != nullptr) {
        disconnect(m_reply);
        m_reply->abort();
@@ -53,6 +54,7 @@ void BlinkParser::onReplyReadyRead()
 
 void BlinkParser::checkResultCode()
 {
+    qDebug("Check rescode");
     if (m_reply != nullptr) {
         int resultCode = m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         if (resultCode != 200) {
@@ -67,14 +69,14 @@ void BlinkParser::parseXml()
     while (!m_reader->atEnd()) {
         switch(m_reader->readNext()) {
         case QXmlStreamReader::StartElement:
-            if (m_reader->name() == QStringLiteral("series_animedb_id")
-                    || m_reader->name() == QStringLiteral("series_mangadb_id")) {
-                m_currentId = m_reader->readElementText();
+            if (m_reader->name().endsWith(QStringLiteral("db_id"))) {
+                state = State::ID;
             } else if (m_reader->name() == QStringLiteral("series_image")) {
                 m_currentImgLink = m_reader->readElementText();
                 emit write(m_currentId, m_currentImgLink);
+                m_currentId.clear();
                 emit currentProgress(++m_current);
-            } else if (m_reader->name() == "myinfo") {
+            } else if (m_reader->name() == QStringLiteral("myinfo")) {
                 m_atUserInfo = true;
             } else if (m_atUserInfo) {
                 // here we rip off the total progress that we need
@@ -92,7 +94,14 @@ void BlinkParser::parseXml()
                 return;
             }
             break;
+        case QXmlStreamReader::Characters:
+            if (state == State::ID) {
+                m_currentId += m_reader->text();
+            }
         case QXmlStreamReader::EndElement:
+            if (m_reader->name().endsWith(QStringLiteral("db_id"))) {
+                state = State::Nothing;
+            }
             if (m_reader->name() == QStringLiteral("myinfo")) {
                 m_atUserInfo = false;
                 emit totalCount(m_total);

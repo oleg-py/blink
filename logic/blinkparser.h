@@ -19,6 +19,8 @@ class BlinkParser : public QObject
     QString m_currentId;
     QString m_currentImgLink;
 
+    enum class State { Nothing, ID, ImgLink } state { State::Nothing };
+
 public:
     explicit BlinkParser(QObject *parent = 0);
     ~BlinkParser();
