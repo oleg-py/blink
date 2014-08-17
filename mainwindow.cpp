@@ -2,6 +2,10 @@
 #include "ui_mainwindow.h"
 #include "logic/blinkcore.h"
 #include <QtAlgorithms>
+#include <QtCore/QFile>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
+#include <QtCore/QJsonValue>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
 
@@ -42,6 +46,19 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->anime_browseButton, &QPushButton::clicked, [this]{writePath(ui->anime_path);});
     connect(ui->manga_browseButton, &QPushButton::clicked, [this]{writePath(ui->manga_path);});
     connect(ui->blinkButton, &QPushButton::clicked, this, &MainWindow::onBlinkButtonPressed);
+
+    QFile settingsFile("settings.json");
+    if (settingsFile.exists() && settingsFile.open(QFile::ReadOnly | QFile::Text)) {
+        auto jsonDoc = QJsonDocument::fromJson(settingsFile.readAll()).object();
+        ui->checkBox->setChecked(true);
+        ui->usernameEdit->setText(jsonDoc.value("username").toString());
+        ui->anime_group->setChecked(jsonDoc.value("anime_on").toBool(false));
+        ui->manga_group->setChecked(jsonDoc.value("manga_on").toBool(false));
+        ui->anime_path->setText(jsonDoc.value("anime_path").toString());
+        ui->manga_path->setText(jsonDoc.value("manga_path").toString());
+        ui->anime_selectorFormat->setCurrentText(jsonDoc.value("anime_selector").toString("animetitle"));
+        ui->manga_selectorFormat->setCurrentText(jsonDoc.value("manga_selector").toString("animetitle"));
+    }
 }
 
 MainWindow::~MainWindow()
@@ -60,6 +77,27 @@ void MainWindow::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent* e)
+{
+    if (ui->checkBox->isChecked()) {
+        QFile settingsFile("settings.json");
+        if (settingsFile.open(QFile::WriteOnly | QFile::Text)) {
+            QJsonObject settings;
+            settings.insert("username",ui->usernameEdit->text());
+            settings.insert("anime_on", ui->anime_group->isChecked());
+            settings.insert("manga_on", ui->manga_group->isChecked());
+            settings.insert("anime_path", ui->anime_path->text());
+            settings.insert("manga_path", ui->manga_path->text());
+            settings.insert("anime_selector", ui->anime_selectorFormat->currentText());
+            settings.insert("manga_selector", ui->manga_selectorFormat->currentText());
+            QJsonDocument doc;
+            doc.setObject(settings);
+            settingsFile.write(doc.toJson(QJsonDocument::Indented));
+        }
+    }
+    QMainWindow::closeEvent(e);
 }
 
 void MainWindow::writePath(QLineEdit *le)
