@@ -72,10 +72,7 @@ void BlinkParser::parseXml()
             if (m_reader->name().endsWith(QStringLiteral("db_id"))) {
                 state = State::ID;
             } else if (m_reader->name() == QStringLiteral("series_image")) {
-                m_currentImgLink = m_reader->readElementText();
-                emit write(m_currentId, m_currentImgLink);
-                m_currentId.clear();
-                emit currentProgress(++m_current);
+                state = State::ImgLink;
             } else if (m_reader->name() == QStringLiteral("myinfo")) {
                 m_atUserInfo = true;
             } else if (m_atUserInfo) {
@@ -97,10 +94,20 @@ void BlinkParser::parseXml()
         case QXmlStreamReader::Characters:
             if (state == State::ID) {
                 m_currentId += m_reader->text();
+            } else if (state == State::ImgLink) {
+                m_currentImgLink += m_reader->text();
             }
         case QXmlStreamReader::EndElement:
-            if (m_reader->name().endsWith(QStringLiteral("db_id"))) {
+            if (m_reader->name().endsWith(QStringLiteral("db_id"))
+                || m_reader->name() == QStringLiteral("series_image")) {
                 state = State::Nothing;
+            }
+            if (m_reader->name() == QStringLiteral("anime")
+                || m_reader->name() == QStringLiteral("manga")) {
+                emit write(m_currentId, m_currentImgLink);
+                emit currentProgress(++m_current);
+                m_currentId.clear();
+                m_currentImgLink.clear();
             }
             if (m_reader->name() == QStringLiteral("myinfo")) {
                 m_atUserInfo = false;
