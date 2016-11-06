@@ -2,7 +2,7 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtCore/QThread>
 
-const QString BlinkCore::UrlTemplate { QStringLiteral("http://myanimelist.net/malappinfo.php?u=%1&status=all&type=%2") };
+const QString BlinkCore::UrlTemplate { QStringLiteral("https://myanimelist.net/malappinfo.php?u=%1&status=all&type=%2") };
 const QString BlinkCore::UrlAnimePart { QStringLiteral("anime") };
 const QString BlinkCore::UrlMangaPart { QStringLiteral("manga") };
 

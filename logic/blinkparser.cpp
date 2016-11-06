@@ -48,8 +48,10 @@ void BlinkParser::abort()
 
 void BlinkParser::onReplyReadyRead()
 {
-    m_reader->addData(m_reply->readAll());
-    parseXml();
+    if (m_reply != nullptr) {
+        m_reader->addData(m_reply->readAll());
+        parseXml();
+    }
 }
 
 void BlinkParser::checkResultCode()
